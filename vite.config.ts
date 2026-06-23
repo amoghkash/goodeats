@@ -1,10 +1,26 @@
+import { execSync } from 'node:child_process'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+function getCommitHash(): string {
+  // Vercel exposes the commit SHA during builds; prefer it since `git` may not
+  // be available in the build image. Fall back to local git, then "unknown".
+  const fromCI = process.env.VERCEL_GIT_COMMIT_SHA
+  if (fromCI) return fromCI.slice(0, 7)
+  try {
+    return execSync('git rev-parse --short HEAD').toString().trim()
+  } catch {
+    return 'unknown'
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
+  define: {
+    __COMMIT_HASH__: JSON.stringify(getCommitHash()),
+  },
   plugins: [
     react(),
     tailwindcss(),

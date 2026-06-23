@@ -139,6 +139,10 @@ export default function Settings() {
         >
           Sign out
         </button>
+
+        <p className="mt-6 text-center font-mono text-xs text-stone-600">
+          build {__COMMIT_HASH__}
+        </p>
       </div>
     </div>
   )
