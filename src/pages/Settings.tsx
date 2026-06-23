@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
 import { supabase } from '../lib/supabase'
 import {
@@ -64,17 +65,23 @@ export default function Settings() {
       </header>
 
       <div className="p-4">
-        <div className="flex items-center gap-3 rounded-2xl bg-stone-800 p-4">
+        <Link
+          to={`/profile/${session?.user.id}`}
+          className="flex items-center gap-3 rounded-2xl bg-stone-800 p-4 transition active:scale-[0.99]"
+        >
           <span className="flex h-11 w-11 items-center justify-center rounded-full bg-orange-500/20 text-lg font-semibold text-orange-400">
             {(name || '?').charAt(0).toUpperCase()}
           </span>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="truncate font-semibold">{name || 'You'}</p>
             <p className="truncate text-sm text-stone-400">
               {session?.user.email}
             </p>
           </div>
-        </div>
+          <span className="shrink-0 text-sm text-stone-500">
+            View profile ›
+          </span>
+        </Link>
 
         <section className="mt-6">
           <h2 className="mb-2 text-sm font-semibold text-stone-300">

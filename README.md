@@ -19,11 +19,13 @@ on your iPhone and it behaves like a native app.
 | Piece | What it does |
 | --- | --- |
 | `src/pages/Login.tsx` | Email + password sign-in (`signInWithPassword`) |
-| `src/pages/Feed.tsx` | Shared feed; realtime-refreshes when either of you posts |
+| `src/pages/Feed.tsx` | Home: combined feed of both people; tap a name/avatar to open their profile |
+| `src/pages/Profile.tsx` | A person's profile + their meals; edit/delete your own posts |
 | `src/pages/Add.tsx` | Camera capture → compress → upload to Storage → insert row |
-| `src/pages/Settings.tsx` | Enable notifications, iOS install hint, sign out |
+| `src/pages/Settings.tsx` | View your profile, enable notifications, iOS install hint, sign out |
+| `src/lib/entries.ts` | Shared data helpers (fetch / edit caption / delete), realtime-backed |
 | `src/sw.ts` | Service worker: offline shell + `push` / `notificationclick` handlers |
-| `supabase/migrations/0001_init.sql` | Tables, RLS, and the private photo bucket |
+| `supabase/migrations/*.sql` | Tables, RLS (incl. caption-edit policy), and the private photo bucket |
 | `supabase/functions/notify-on-entry` | Webhook target: push the *other* user when someone posts |
 | `supabase/functions/daily-reminder` | Cron target: nudge anyone who hasn't logged today |
 

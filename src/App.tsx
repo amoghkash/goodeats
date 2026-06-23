@@ -3,6 +3,7 @@ import { useAuth } from './lib/auth'
 import BottomNav from './components/BottomNav'
 import Login from './pages/Login'
 import Feed from './pages/Feed'
+import Profile from './pages/Profile'
 import Add from './pages/Add'
 import Settings from './pages/Settings'
 
@@ -25,6 +26,7 @@ export default function App() {
       <main className="min-h-0 flex-1 overflow-y-auto">
         <Routes>
           <Route path="/" element={<Feed />} />
+          <Route path="/profile/:id" element={<Profile />} />
           <Route path="/add" element={<Add />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" replace />} />
