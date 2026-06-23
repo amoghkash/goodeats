@@ -21,8 +21,8 @@ export default function App() {
   if (!session) return <Login />
 
   return (
-    <div className="mx-auto flex h-full max-w-md flex-col">
-      <main className="flex-1 overflow-y-auto pb-20">
+    <div className="mx-auto flex min-h-[100dvh] max-w-md flex-col">
+      <main className="flex-1 overflow-y-auto pb-24">
         <Routes>
           <Route path="/" element={<Feed />} />
           <Route path="/add" element={<Add />} />

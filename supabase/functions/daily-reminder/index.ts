@@ -4,10 +4,13 @@ import { admin, sendToUsers, type PushPayload } from '../_shared/webpush.ts'
 
 Deno.serve(async () => {
   try {
-    // Start of the current UTC day. (Good enough for a two-person app; adjust
-    // the offset in the cron schedule to roughly match your timezone's evening.)
-    const since = new Date()
-    since.setUTCHours(0, 0, 0, 0)
+    // Start of the current day in US Eastern (UTC-5), as a UTC instant. The
+    // reminder runs in the evening, so this skips anyone who already logged a
+    // meal earlier today (their Eastern day, not the UTC day).
+    const EASTERN_OFFSET_MS = 5 * 60 * 60 * 1000
+    const easternMidnight = new Date(Date.now() - EASTERN_OFFSET_MS)
+    easternMidnight.setUTCHours(0, 0, 0, 0)
+    const since = new Date(easternMidnight.getTime() + EASTERN_OFFSET_MS)
 
     const { data: todays } = await admin
       .from('entries')

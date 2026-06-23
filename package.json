@@ -9,7 +9,14 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "vapid": "node scripts/generate-vapid.mjs",
-    "generate-icons": "pwa-assets-generator --preset minimal-2023 public/app-icon.svg"
+    "generate-icons": "pwa-assets-generator --preset minimal-2023 public/app-icon.svg",
+    "sb:login": "supabase login",
+    "sb:link": "supabase link --project-ref pivsplitiahvcmqywgnh",
+    "sb:start": "supabase start",
+    "sb:stop": "supabase stop",
+    "db:push": "supabase db push",
+    "db:new": "supabase migration new",
+    "functions:deploy": "supabase functions deploy notify-on-entry && supabase functions deploy daily-reminder"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",
@@ -31,6 +38,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
+    "supabase": "^2.107.0",
     "tailwindcss": "^4.3.1",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",

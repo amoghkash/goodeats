@@ -5,16 +5,29 @@ import { registerSW } from 'virtual:pwa-register'
 import './index.css'
 import App from './App.tsx'
 import { AuthProvider } from './lib/auth.tsx'
+import { isSupabaseConfigured } from './lib/supabase.ts'
+import ConfigError from './components/ConfigError.tsx'
 
-// Register the service worker (handles offline shell + push notifications).
-registerSW({ immediate: true })
+const root = createRoot(document.getElementById('root')!)
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </BrowserRouter>
-  </StrictMode>,
-)
+if (!isSupabaseConfigured) {
+  // Missing env vars — show a clear message instead of a blank/grey screen.
+  root.render(
+    <StrictMode>
+      <ConfigError />
+    </StrictMode>,
+  )
+} else {
+  // Register the service worker (handles offline shell + push notifications).
+  registerSW({ immediate: true })
+
+  root.render(
+    <StrictMode>
+      <BrowserRouter>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </BrowserRouter>
+    </StrictMode>,
+  )
+}

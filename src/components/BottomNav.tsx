@@ -9,7 +9,7 @@ function iconClass(active: boolean) {
 
 export default function BottomNav() {
   return (
-    <nav className="safe-bottom fixed inset-x-0 bottom-0 z-10 mx-auto flex max-w-md border-t border-stone-800 bg-stone-900/95 backdrop-blur">
+    <nav className="bottom-nav fixed inset-x-0 bottom-0 z-10 mx-auto flex max-w-md items-center border-t border-stone-800 bg-stone-900/95 backdrop-blur">
       <NavLink to="/" end className={linkBase}>
         {({ isActive }) => (
           <>

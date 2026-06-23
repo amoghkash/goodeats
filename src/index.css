@@ -4,10 +4,16 @@
   color-scheme: dark;
 }
 
-html,
+html {
+  height: 100%;
+}
+
+/* Use the dynamic viewport height so the layout tracks Safari's
+   collapsing toolbar on iOS instead of leaving a gap. */
 body,
 #root {
-  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 body {
@@ -25,8 +31,12 @@ body {
 .safe-top {
   padding-top: env(safe-area-inset-top);
 }
-.safe-bottom {
-  padding-bottom: env(safe-area-inset-bottom);
+
+/* Bottom nav: clear the home indicator, but don't reserve the *full* inset —
+   that leaves a large empty strip below the icons. Trim it so the icons sit
+   close to the bottom while still keeping a comfortable safe gap. */
+.bottom-nav {
+  padding-bottom: max(calc(env(safe-area-inset-bottom) - 1rem), 0.5rem);
 }
 
 /* Hide the native file input; we trigger it from a styled button */

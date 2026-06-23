@@ -56,12 +56,20 @@ npm run dev
 2. **Project Settings → API**: copy the **Project URL** and **anon public key** into
    `.env.local` as `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 
-### 2. Create the database schema
+### 2. Link the CLI and push the schema
 
-Open **SQL Editor** in the Supabase dashboard, paste the contents of
-`supabase/migrations/0001_init.sql`, and run it. (Or, with the
-[Supabase CLI](https://supabase.com/docs/guides/cli): `supabase link` then
-`supabase db push`.)
+The Supabase CLI is installed as a dev dependency, so use the npm scripts (each
+just wraps `npx supabase …`):
+
+```bash
+npm run sb:login                # opens a browser to authenticate (one-time)
+npm run sb:link                 # links to project pivsplitiahvcmqywgnh (asks for DB password)
+npm run db:push                 # runs supabase/migrations/0001_init.sql on your project
+```
+
+> `sb:login` is interactive — if it doesn't open automatically, run it from your
+> terminal directly. (Prefer the dashboard instead? Paste
+> `supabase/migrations/0001_init.sql` into the SQL Editor and run it.)
 
 ### 3. Create your two accounts (invite-only)
 
@@ -87,7 +95,7 @@ npm run vapid
 - In Supabase, set the Edge Function secrets (**Project Settings → Edge Functions →
   Secrets**, or via CLI):
   ```bash
-  supabase secrets set \
+  npx supabase secrets set \
     VAPID_PUBLIC_KEY=... \
     VAPID_PRIVATE_KEY=... \
     VAPID_SUBJECT=mailto:you@example.com
@@ -96,8 +104,7 @@ npm run vapid
 ### 5. Deploy the Edge Functions
 
 ```bash
-supabase functions deploy notify-on-entry
-supabase functions deploy daily-reminder
+npm run functions:deploy        # deploys notify-on-entry and daily-reminder
 ```
 
 ### 6. Wire up "notify when friend posts"
@@ -110,14 +117,28 @@ supabase functions deploy daily-reminder
 
 ### 7. Schedule the daily reminder
 
-In SQL Editor (enable the `pg_cron` and `pg_net` extensions first under
-**Database → Extensions**). This example fires at 19:00 UTC daily — adjust the hour to
-your timezone's evening:
+Use **Supabase Cron** — it enables `pg_cron`/`pg_net` for you, so there's no extension
+to hunt for:
+
+1. Dashboard → **Database → Cron Jobs** (a.k.a. **Integrations → Cron**) → **Create job**.
+2. Name: `goodeats-daily-reminder`. Schedule: `30 1 * * *`.
+3. Type: **Supabase Edge Function** → select `daily-reminder` (method `POST`).
+4. Save. The dashboard handles the HTTP call and auth automatically.
+
+This fires daily at **01:30 UTC = 8:30 PM EST**. Cron runs in UTC and doesn't follow
+daylight saving, so during EDT (summer) it lands at 9:30 PM local — change the schedule
+to `30 0 * * *` if you'd rather keep it at 8:30 PM during summer. The function only
+reminds people who haven't logged a meal yet **that Eastern day**.
+
+<details>
+<summary>Prefer raw SQL instead of the dashboard?</summary>
+
+Enable `pg_cron` + `pg_net` under **Database → Extensions**, then run:
 
 ```sql
 select cron.schedule(
   'goodeats-daily-reminder',
-  '0 19 * * *',
+  '30 1 * * *',
   $$
   select net.http_post(
     url := 'https://<YOUR-PROJECT-REF>.supabase.co/functions/v1/daily-reminder',
@@ -129,6 +150,8 @@ select cron.schedule(
   $$
 );
 ```
+
+</details>
 
 ### 8. Deploy the frontend to Vercel
 
@@ -164,3 +187,9 @@ open **GoodEats** from the home screen → **Settings → Enable** notifications
 | `npm run preview` | Serve the production build locally |
 | `npm run vapid` | Generate a VAPID key pair |
 | `npm run generate-icons` | Regenerate PWA icons from `public/app-icon.svg` |
+| `npm run sb:login` | Authenticate the Supabase CLI (one-time) |
+| `npm run sb:link` | Link the CLI to your Supabase project |
+| `npm run db:push` | Run migrations against your linked project |
+| `npm run db:new <name>` | Create a new migration file |
+| `npm run functions:deploy` | Deploy both Edge Functions |
+| `npm run sb:start` / `sb:stop` | Run/stop the full Supabase stack locally (needs Docker) |
