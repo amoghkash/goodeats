@@ -1,0 +1,39 @@
+@import 'tailwindcss';
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: #1c1917; /* stone-900 */
+  color: #fafaf9; /* stone-50 */
+  font-family:
+    system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  /* Prevent pull-to-refresh / overscroll bounce feeling un-app-like */
+  overscroll-behavior-y: none;
+}
+
+/* Respect the iPhone notch / home indicator safe areas */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Hide the native file input; we trigger it from a styled button */
+input[type='file'] {
+  display: none;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
