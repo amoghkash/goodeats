@@ -5,8 +5,8 @@ export interface EnrichedEntry {
   id: string
   userId: string
   authorName: string
-  photoPath: string
-  photoUrl: string
+  photoPaths: string[]
+  photoUrls: string[]
   caption: string | null
   mealType: MealType
   createdAt: string
@@ -25,7 +25,7 @@ export async function fetchProfiles(): Promise<Profile[]> {
 export async function fetchEntries(userId?: string): Promise<EnrichedEntry[]> {
   let query = supabase
     .from('entries')
-    .select('id, user_id, photo_path, caption, meal_type, created_at')
+    .select('id, user_id, photo_paths, caption, meal_type, created_at')
   if (userId) query = query.eq('user_id', userId)
 
   const [{ data: profiles }, { data: entries, error }] = await Promise.all([
@@ -40,13 +40,11 @@ export async function fetchEntries(userId?: string): Promise<EnrichedEntry[]> {
   const rows = (entries ?? []) as Entry[]
   if (rows.length === 0) return []
 
-  // Batch-sign the private photo URLs (valid for 1 hour).
+  // Batch-sign every photo path across all entries (valid for 1 hour).
+  const allPaths = rows.flatMap((r) => r.photo_paths)
   const { data: signed } = await supabase.storage
     .from(PHOTO_BUCKET)
-    .createSignedUrls(
-      rows.map((r) => r.photo_path),
-      60 * 60,
-    )
+    .createSignedUrls(allPaths, 60 * 60)
   const urlByPath = new Map<string, string>()
   signed?.forEach((s) => {
     if (s.signedUrl && s.path) urlByPath.set(s.path, s.signedUrl)
@@ -56,8 +54,8 @@ export async function fetchEntries(userId?: string): Promise<EnrichedEntry[]> {
     id: r.id,
     userId: r.user_id,
     authorName: names.get(r.user_id) ?? 'Someone',
-    photoPath: r.photo_path,
-    photoUrl: urlByPath.get(r.photo_path) ?? '',
+    photoPaths: r.photo_paths,
+    photoUrls: r.photo_paths.map((p) => urlByPath.get(p) ?? ''),
     caption: r.caption,
     mealType: r.meal_type,
     createdAt: r.created_at,
@@ -73,9 +71,14 @@ export async function updateCaption(id: string, caption: string): Promise<void> 
   if (error) throw error
 }
 
-/** Delete an entry and its photo. RLS allows own entries only. */
-export async function deleteEntry(id: string, photoPath: string): Promise<void> {
-  await supabase.storage.from(PHOTO_BUCKET).remove([photoPath])
+/** Delete an entry and all its photos. RLS allows own entries only. */
+export async function deleteEntry(
+  id: string,
+  photoPaths: string[],
+): Promise<void> {
+  if (photoPaths.length > 0) {
+    await supabase.storage.from(PHOTO_BUCKET).remove(photoPaths)
+  }
   const { error } = await supabase.from('entries').delete().eq('id', id)
   if (error) throw error
 }

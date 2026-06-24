@@ -56,7 +56,7 @@ export default function Feed() {
   async function handleDelete(entry: EnrichedEntry) {
     if (!confirm('Delete this post?')) return
     setEntries((prev) => prev?.filter((e) => e.id !== entry.id) ?? prev)
-    await deleteEntry(entry.id, entry.photoPath)
+    await deleteEntry(entry.id, entry.photoPaths)
   }
 
   return (
@@ -93,7 +93,7 @@ export default function Feed() {
           id={e.id}
           authorId={e.userId}
           authorName={e.authorName}
-          photoUrl={e.photoUrl}
+          photoUrls={e.photoUrls}
           caption={e.caption}
           mealType={e.mealType}
           createdAt={e.createdAt}

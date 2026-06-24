@@ -3,68 +3,98 @@ import { useNavigate } from 'react-router-dom'
 import imageCompression from 'browser-image-compression'
 import { PHOTO_BUCKET, supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
-import { MEAL_EMOJI, MEAL_LABELS, MEAL_TYPES, type MealType } from '../lib/types'
+import {
+  MAX_PHOTOS,
+  MEAL_EMOJI,
+  MEAL_LABELS,
+  MEAL_TYPES,
+  type MealType,
+} from '../lib/types'
+
+interface Shot {
+  file: File
+  preview: string
+}
 
 export default function Add() {
   const { session } = useAuth()
   const navigate = useNavigate()
   const fileInput = useRef<HTMLInputElement>(null)
 
-  const [file, setFile] = useState<File | null>(null)
-  const [preview, setPreview] = useState<string | null>(null)
+  const [shots, setShots] = useState<Shot[]>([])
   const [mealType, setMealType] = useState<MealType>('lunch')
   const [caption, setCaption] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const picked = e.target.files?.[0]
-    if (!picked) return
+  async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    const picked = Array.from(e.target.files ?? [])
+    e.target.value = '' // allow re-picking the same files / adding more later
+    if (picked.length === 0) return
     setError(null)
-    try {
-      const compressed = await imageCompression(picked, {
-        maxSizeMB: 0.8,
-        maxWidthOrHeight: 1280,
-        useWebWorker: true,
-        fileType: 'image/jpeg',
-      })
-      setFile(compressed)
-      setPreview(URL.createObjectURL(compressed))
-    } catch {
-      // If compression fails for any reason, fall back to the original file.
-      setFile(picked)
-      setPreview(URL.createObjectURL(picked))
+
+    const room = MAX_PHOTOS - shots.length
+    if (picked.length > room) {
+      setError(`You can add up to ${MAX_PHOTOS} photos.`)
     }
+    const toAdd = picked.slice(0, room)
+
+    const compressed = await Promise.all(
+      toAdd.map(async (f) => {
+        try {
+          const c = await imageCompression(f, {
+            maxSizeMB: 0.8,
+            maxWidthOrHeight: 1280,
+            useWebWorker: true,
+            fileType: 'image/jpeg',
+          })
+          return { file: c, preview: URL.createObjectURL(c) }
+        } catch {
+          return { file: f, preview: URL.createObjectURL(f) }
+        }
+      }),
+    )
+    setShots((prev) => [...prev, ...compressed])
+  }
+
+  function removeShot(index: number) {
+    setShots((prev) => {
+      URL.revokeObjectURL(prev[index].preview)
+      return prev.filter((_, i) => i !== index)
+    })
   }
 
   async function handlePost() {
-    if (!file || !session) return
+    if (shots.length === 0 || !session) return
     setBusy(true)
     setError(null)
 
     const userId = session.user.id
-    const path = `${userId}/${crypto.randomUUID()}.jpg`
+    const paths: string[] = []
 
-    const { error: uploadError } = await supabase.storage
-      .from(PHOTO_BUCKET)
-      .upload(path, file, { contentType: 'image/jpeg', upsert: false })
-
-    if (uploadError) {
-      setBusy(false)
-      setError(uploadError.message)
-      return
+    for (const shot of shots) {
+      const path = `${userId}/${crypto.randomUUID()}.jpg`
+      const { error: uploadError } = await supabase.storage
+        .from(PHOTO_BUCKET)
+        .upload(path, shot.file, { contentType: 'image/jpeg', upsert: false })
+      if (uploadError) {
+        if (paths.length) await supabase.storage.from(PHOTO_BUCKET).remove(paths)
+        setBusy(false)
+        setError(uploadError.message)
+        return
+      }
+      paths.push(path)
     }
 
     const { error: insertError } = await supabase.from('entries').insert({
       user_id: userId,
-      photo_path: path,
+      photo_paths: paths,
       caption: caption.trim() || null,
       meal_type: mealType,
     })
 
     if (insertError) {
-      // Roll back the orphaned upload so storage doesn't accumulate junk.
-      await supabase.storage.from(PHOTO_BUCKET).remove([path])
+      await supabase.storage.from(PHOTO_BUCKET).remove(paths)
       setBusy(false)
       setError(insertError.message)
       return
@@ -73,11 +103,13 @@ export default function Add() {
     navigate('/')
   }
 
+  const canAddMore = shots.length < MAX_PHOTOS
+
   return (
     <div>
-      <header className="safe-top sticky top-0 z-10 flex items-center justify-between border-b border-stone-800 bg-stone-900/95 px-4 py-3 backdrop-blur">
+      <header className="safe-top sticky top-0 z-10 flex items-center justify-between border-b border-stone-800 bg-stone-900 px-4 py-3">
         <h1 className="text-lg font-bold">Log a meal</h1>
-        {file && (
+        {shots.length > 0 && (
           <button
             onClick={handlePost}
             disabled={busy}
@@ -93,11 +125,11 @@ export default function Add() {
           ref={fileInput}
           type="file"
           accept="image/*"
-          capture="environment"
-          onChange={handleFile}
+          multiple
+          onChange={handleFiles}
         />
 
-        {!preview ? (
+        {shots.length === 0 ? (
           <button
             onClick={() => fileInput.current?.click()}
             className="flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-stone-700 bg-stone-800/50 text-stone-400 transition active:scale-[0.99]"
@@ -114,22 +146,65 @@ export default function Add() {
               <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
               <circle cx="12" cy="13" r="4" />
             </svg>
-            <span className="font-medium">Take a photo</span>
+            <span className="font-medium">Add photos</span>
+            <span className="text-xs text-stone-500">Up to {MAX_PHOTOS}</span>
           </button>
         ) : (
-          <button
-            onClick={() => fileInput.current?.click()}
-            className="relative block w-full overflow-hidden rounded-2xl"
-          >
-            <img
-              src={preview}
-              alt="Selected meal"
-              className="aspect-square w-full object-cover"
-            />
-            <span className="absolute bottom-2 right-2 rounded-lg bg-black/60 px-3 py-1 text-xs text-white">
-              Retake
-            </span>
-          </button>
+          <div className="grid grid-cols-3 gap-2">
+            {shots.map((shot, i) => (
+              <div
+                key={shot.preview}
+                className="relative aspect-square overflow-hidden rounded-xl"
+              >
+                <img
+                  src={shot.preview}
+                  alt={`Selected ${i + 1}`}
+                  className="h-full w-full object-cover"
+                />
+                <button
+                  onClick={() => removeShot(i)}
+                  aria-label="Remove photo"
+                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white"
+                >
+                  <svg
+                    className="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                  >
+                    <path d="M18 6 6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            ))}
+            {canAddMore && (
+              <button
+                onClick={() => fileInput.current?.click()}
+                className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-stone-700 bg-stone-800/50 text-stone-400"
+              >
+                <svg
+                  className="h-7 w-7"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                <span className="text-[11px]">Add</span>
+              </button>
+            )}
+          </div>
+        )}
+
+        {shots.length > 0 && (
+          <p className="mt-2 text-xs text-stone-500">
+            {shots.length}/{MAX_PHOTOS} photos
+          </p>
         )}
 
         <div className="mt-5">

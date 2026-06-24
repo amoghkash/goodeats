@@ -47,3 +47,12 @@ input[type='file'] {
 button {
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Horizontal carousels: hide the scrollbar but keep swipe/scroll-snap */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

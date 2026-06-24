@@ -20,10 +20,12 @@ export interface Profile {
   display_name: string
 }
 
+export const MAX_PHOTOS = 10
+
 export interface Entry {
   id: string
   user_id: string
-  photo_path: string
+  photo_paths: string[]
   caption: string | null
   meal_type: MealType
   created_at: string

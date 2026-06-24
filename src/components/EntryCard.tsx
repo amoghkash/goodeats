@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { formatDistanceToNow } from 'date-fns'
 import { MEAL_EMOJI, MEAL_LABELS, type MealType } from '../lib/types'
+import PhotoCarousel from './PhotoCarousel'
 
 export interface FeedItem {
   id: string
   authorId: string
   authorName: string
-  photoUrl: string
+  photoUrls: string[]
   caption: string | null
   mealType: MealType
   createdAt: string
@@ -81,12 +82,7 @@ export default function EntryCard(item: FeedItem) {
         </span>
       </header>
 
-      <img
-        src={item.photoUrl}
-        alt={item.caption ?? 'Meal photo'}
-        loading="lazy"
-        className="aspect-square w-full bg-stone-800 object-cover"
-      />
+      <PhotoCarousel urls={item.photoUrls} alt={item.caption ?? 'Meal photo'} />
 
       {showFooter && (
         <div className="px-4 py-3">
