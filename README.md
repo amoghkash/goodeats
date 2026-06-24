@@ -21,7 +21,8 @@ on your iPhone and it behaves like a native app.
 | `src/pages/Login.tsx` | Email + password sign-in (`signInWithPassword`) |
 | `src/pages/Feed.tsx` | Home: combined feed of both people; tap a name/avatar to open their profile |
 | `src/pages/Profile.tsx` | A person's profile as an Instagram-style photo grid; tap a post to view/edit/delete |
-| `src/pages/Add.tsx` | Pick up to 10 photos → compress each → upload to Storage → insert row |
+| `src/pages/Add.tsx` | Take up to 10 photos with the in-app camera → upload to Storage → insert row |
+| `src/components/Camera.tsx` | Full-screen `getUserMedia` camera; tap the shutter repeatedly to add several photos |
 | `src/components/PhotoCarousel.tsx` | Swipeable multi-photo carousel (dots + counter) used on cards |
 | `src/pages/Settings.tsx` | View your profile, enable notifications, iOS install hint, sign out |
 | `src/lib/entries.ts` | Shared data helpers (fetch / edit caption / delete), realtime-backed |

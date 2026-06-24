@@ -31,6 +31,9 @@ body {
 .safe-top {
   padding-top: env(safe-area-inset-top);
 }
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
 
 /* Bottom nav: clear the home indicator, but don't reserve the *full* inset —
    that leaves a large empty strip below the icons. Trim it so the icons sit

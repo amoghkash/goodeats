@@ -1,8 +1,8 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import imageCompression from 'browser-image-compression'
 import { PHOTO_BUCKET, supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
+import Camera from '../components/Camera'
 import {
   MAX_PHOTOS,
   MEAL_EMOJI,
@@ -19,42 +19,24 @@ interface Shot {
 export default function Add() {
   const { session } = useAuth()
   const navigate = useNavigate()
-  const fileInput = useRef<HTMLInputElement>(null)
 
   const [shots, setShots] = useState<Shot[]>([])
+  const [cameraOpen, setCameraOpen] = useState(false)
   const [mealType, setMealType] = useState<MealType>('lunch')
   const [caption, setCaption] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
-    const picked = Array.from(e.target.files ?? [])
-    e.target.value = '' // allow re-picking the same files / adding more later
-    if (picked.length === 0) return
-    setError(null)
-
-    const room = MAX_PHOTOS - shots.length
-    if (picked.length > room) {
-      setError(`You can add up to ${MAX_PHOTOS} photos.`)
-    }
-    const toAdd = picked.slice(0, room)
-
-    const compressed = await Promise.all(
-      toAdd.map(async (f) => {
-        try {
-          const c = await imageCompression(f, {
-            maxSizeMB: 0.8,
-            maxWidthOrHeight: 1280,
-            useWebWorker: true,
-            fileType: 'image/jpeg',
-          })
-          return { file: c, preview: URL.createObjectURL(c) }
-        } catch {
-          return { file: f, preview: URL.createObjectURL(f) }
-        }
-      }),
-    )
-    setShots((prev) => [...prev, ...compressed])
+  function handleCameraDone(files: File[]) {
+    setCameraOpen(false)
+    if (files.length === 0) return
+    setShots((prev) => {
+      const room = MAX_PHOTOS - prev.length
+      const added = files
+        .slice(0, room)
+        .map((file) => ({ file, preview: URL.createObjectURL(file) }))
+      return [...prev, ...added]
+    })
   }
 
   function removeShot(index: number) {
@@ -105,6 +87,17 @@ export default function Add() {
 
   const canAddMore = shots.length < MAX_PHOTOS
 
+  if (cameraOpen) {
+    return (
+      <Camera
+        initialCount={shots.length}
+        max={MAX_PHOTOS}
+        onDone={handleCameraDone}
+        onCancel={() => setCameraOpen(false)}
+      />
+    )
+  }
+
   return (
     <div>
       <header className="safe-top sticky top-0 z-10 flex items-center justify-between border-b border-stone-800 bg-stone-900 px-4 py-3">
@@ -121,17 +114,9 @@ export default function Add() {
       </header>
 
       <div className="p-4">
-        <input
-          ref={fileInput}
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={handleFiles}
-        />
-
         {shots.length === 0 ? (
           <button
-            onClick={() => fileInput.current?.click()}
+            onClick={() => setCameraOpen(true)}
             className="flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-stone-700 bg-stone-800/50 text-stone-400 transition active:scale-[0.99]"
           >
             <svg
@@ -146,7 +131,7 @@ export default function Add() {
               <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
               <circle cx="12" cy="13" r="4" />
             </svg>
-            <span className="font-medium">Add photos</span>
+            <span className="font-medium">Take photos</span>
             <span className="text-xs text-stone-500">Up to {MAX_PHOTOS}</span>
           </button>
         ) : (
@@ -181,7 +166,7 @@ export default function Add() {
             ))}
             {canAddMore && (
               <button
-                onClick={() => fileInput.current?.click()}
+                onClick={() => setCameraOpen(true)}
                 className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-stone-700 bg-stone-800/50 text-stone-400"
               >
                 <svg
