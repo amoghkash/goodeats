@@ -6,7 +6,6 @@ import Feed from './pages/Feed'
 import Profile from './pages/Profile'
 import Add from './pages/Add'
 import Settings from './pages/Settings'
-import Notes from './pages/Notes'
 
 function Loading() {
   return (
@@ -34,7 +33,6 @@ export default function App() {
           <Route path="/" element={<Feed />} />
           <Route path="/profile/:id" element={<Profile />} />
           <Route path="/add" element={<Add />} />
-          <Route path="/notes" element={<Notes />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

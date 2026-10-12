@@ -8,17 +8,15 @@ import {
   updateCaption,
   type EnrichedEntry,
 } from '../lib/entries'
-import { useUnreadNoteCount } from '../lib/notes'
 import EntryCard from '../components/EntryCard'
 import PageHeader from '../components/PageHeader'
-import { ChatIcon } from '../components/icons'
+import NotesStrip from '../components/NotesStrip'
 
 export default function Feed() {
   const { session } = useAuth()
   const myId = session?.user.id
   const [entries, setEntries] = useState<EnrichedEntry[] | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const unreadNotes = useUnreadNoteCount(myId)
 
   const load = useCallback(async () => {
     try {
@@ -65,28 +63,13 @@ export default function Feed() {
 
   return (
     <div>
-      <PageHeader
-        right={
-          <Link
-            to="/notes"
-            aria-label={
-              unreadNotes > 0 ? `Notes (${unreadNotes} unread)` : 'Notes'
-            }
-            className="relative -mr-1 flex h-10 w-10 items-center justify-center rounded-full bg-raised text-stone-200 ring-1 ring-line transition active:scale-95"
-          >
-            <ChatIcon className="h-5 w-5" />
-            {unreadNotes > 0 && (
-              <span className="bg-brand absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white ring-2 ring-canvas">
-                {unreadNotes > 9 ? '9+' : unreadNotes}
-              </span>
-            )}
-          </Link>
-        }
-      >
+      <PageHeader>
         <h1 className="text-brand font-display text-[26px] font-bold tracking-tight">
           GoodEats
         </h1>
       </PageHeader>
+
+      <NotesStrip />
 
       {error && (
         <p className="px-4 py-6 text-center text-sm text-red-400">{error}</p>

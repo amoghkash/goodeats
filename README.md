@@ -20,15 +20,15 @@ on your iPhone and it behaves like a native app.
 | --- | --- |
 | `src/pages/Login.tsx` | Email + password sign-in (`signInWithPassword`) |
 | `src/pages/Feed.tsx` | Home: combined feed of both people; tap a name/avatar to open their profile |
+| `src/components/NotesStrip.tsx` | Instagram-style notes at the top of the feed: one short note each (≤120 chars) in a bubble above your avatar, gone after 24 hours. Posting a new note replaces yours |
 | `src/pages/Profile.tsx` | A person's profile as an Instagram-style photo grid; tap a post to view/edit/delete |
 | `src/pages/Add.tsx` | Take up to 10 photos with the in-app camera or pick them from the photo library → upload to Storage → insert row |
 | `src/components/Camera.tsx` | Full-screen `getUserMedia` camera; flip between rear and selfie cameras, tap the shutter repeatedly, or pull in photos from the library |
 | `src/lib/images.ts` | Compresses library photos to ≤1280px JPEG before upload |
 | `src/components/PhotoCarousel.tsx` | Swipeable multi-photo carousel (dots + counter) used on cards |
-| `src/pages/Notes.tsx` | Short notes (≤280 chars) you send each other through the day; chat-style thread with "Seen" receipts. Open it from the 💬 icon on the feed (shows an unread badge) |
 | `src/pages/Settings.tsx` | View your profile, enable notifications, iOS install hint, sign out |
 | `src/lib/entries.ts` | Shared data helpers (fetch / edit caption / delete), realtime-backed |
-| `src/lib/notes.ts` | Notes helpers (fetch / send / mark read / delete) + live unread count |
+| `src/lib/notes.ts` | Notes helpers (fetch active / set / clear / mark seen) |
 | `src/sw.ts` | Service worker: offline shell + `push` / `notificationclick` handlers |
 | `supabase/migrations/*.sql` | Tables, RLS (incl. caption-edit policy), and the private photo bucket |
 | `supabase/functions/notify-on-entry` | Webhook target: push the *other* user when someone posts |
@@ -186,8 +186,8 @@ open **GoodEats** from the home screen → **Settings → Enable** notifications
 
 - Log in, tap **+**, take a photo, post it — it should appear in the feed instantly.
 - On the other phone (installed PWA), you should get a push within a few seconds.
-- Tap the 💬 icon on the feed and send a note — the other phone gets a push with the
-  note text, and tapping it opens the Notes thread.
+- Tap **Your note** at the top of the feed and share one — the other phone gets a push
+  with the note text, and their feed shows it above your avatar for 24 hours.
 - Manually fire the reminder to test it:
   ```bash
   curl -X POST 'https://<PROJECT-REF>.supabase.co/functions/v1/daily-reminder' \

@@ -44,14 +44,6 @@ export function SettingsIcon(props: IconProps) {
   )
 }
 
-export function ChatIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.9-.9L3 20.5l1.6-4.4A8.1 8.1 0 0 1 3 11.5 8.6 8.6 0 0 1 12 3a8.6 8.6 0 0 1 9 8.5Z" />
-    </Svg>
-  )
-}
-
 export function BackIcon(props: IconProps) {
   return (
     <Svg {...props}>
@@ -116,14 +108,6 @@ export function TrashIcon(props: IconProps) {
   return (
     <Svg {...props}>
       <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6" />
-    </Svg>
-  )
-}
-
-export function SendIcon(props: IconProps) {
-  return (
-    <Svg strokeWidth={2.2} {...props}>
-      <path d="M12 19V5M5 12l7-7 7 7" />
     </Svg>
   )
 }

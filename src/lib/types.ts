@@ -36,8 +36,11 @@ export interface EntryWithProfile extends Entry {
   profiles: Profile | null
 }
 
-/** Longest note you can send (also enforced by a DB check constraint). */
-export const NOTE_MAX_LENGTH = 280
+/** Longest note you can leave (the DB allows up to 280 as a backstop). */
+export const NOTE_MAX_LENGTH = 120
+
+/** Notes disappear this long after they're posted. */
+export const NOTE_TTL_MS = 24 * 60 * 60 * 1000
 
 export interface Note {
   id: string
