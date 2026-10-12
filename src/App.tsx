@@ -22,7 +22,10 @@ export default function App() {
   if (!session) return <Login />
 
   return (
-    <div className="mx-auto flex h-[100dvh] max-w-md flex-col">
+    // Pin the shell to the screen edges rather than sizing it with 100dvh:
+    // in an iOS home-screen (standalone) PWA, 100dvh stops short of the
+    // bottom edge, which left the nav floating above a blank strip.
+    <div className="fixed inset-0 mx-auto flex max-w-md flex-col">
       <main className="min-h-0 flex-1 overflow-y-auto">
         <Routes>
           <Route path="/" element={<Feed />} />
