@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PHOTO_BUCKET, supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import Camera from '../components/Camera'
+import { compressImages } from '../lib/images'
 import {
   MAX_PHOTOS,
   MEAL_EMOJI,
@@ -19,6 +20,7 @@ interface Shot {
 export default function Add() {
   const { session } = useAuth()
   const navigate = useNavigate()
+  const fileInput = useRef<HTMLInputElement>(null)
 
   const [shots, setShots] = useState<Shot[]>([])
   const [cameraOpen, setCameraOpen] = useState(false)
@@ -27,8 +29,7 @@ export default function Add() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  function handleCameraDone(files: File[]) {
-    setCameraOpen(false)
+  function addFiles(files: File[]) {
     if (files.length === 0) return
     setShots((prev) => {
       const room = MAX_PHOTOS - prev.length
@@ -37,6 +38,24 @@ export default function Add() {
         .map((file) => ({ file, preview: URL.createObjectURL(file) }))
       return [...prev, ...added]
     })
+  }
+
+  function handleCameraDone(files: File[]) {
+    setCameraOpen(false)
+    addFiles(files)
+  }
+
+  async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    const picked = Array.from(e.target.files ?? [])
+    e.target.value = '' // allow re-picking the same photos / adding more later
+    if (picked.length === 0) return
+    setError(null)
+
+    const room = MAX_PHOTOS - shots.length
+    if (picked.length > room) {
+      setError(`You can add up to ${MAX_PHOTOS} photos.`)
+    }
+    addFiles(await compressImages(picked.slice(0, room)))
   }
 
   function removeShot(index: number) {
@@ -114,26 +133,55 @@ export default function Add() {
       </header>
 
       <div className="p-4">
+        <input
+          ref={fileInput}
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleFiles}
+        />
+
         {shots.length === 0 ? (
-          <button
-            onClick={() => setCameraOpen(true)}
-            className="flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-stone-700 bg-stone-800/50 text-stone-400 transition active:scale-[0.99]"
-          >
-            <svg
-              className="h-12 w-12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          <>
+            <button
+              onClick={() => setCameraOpen(true)}
+              className="flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-stone-700 bg-stone-800/50 text-stone-400 transition active:scale-[0.99]"
             >
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-              <circle cx="12" cy="13" r="4" />
-            </svg>
-            <span className="font-medium">Take photos</span>
-            <span className="text-xs text-stone-500">Up to {MAX_PHOTOS}</span>
-          </button>
+              <svg
+                className="h-12 w-12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+              <span className="font-medium">Take photos</span>
+              <span className="text-xs text-stone-500">Up to {MAX_PHOTOS}</span>
+            </button>
+            <button
+              onClick={() => fileInput.current?.click()}
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-stone-700 bg-stone-800 py-3 text-sm font-medium text-stone-300 transition active:scale-[0.99]"
+            >
+              <svg
+                className="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <circle cx="9" cy="9" r="2" />
+                <path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />
+              </svg>
+              Choose from library
+            </button>
+          </>
         ) : (
           <div className="grid grid-cols-3 gap-2">
             {shots.map((shot, i) => (
@@ -174,13 +222,35 @@ export default function Add() {
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="2"
+                  strokeWidth="1.8"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <path d="M12 5v14M5 12h14" />
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
                 </svg>
-                <span className="text-[11px]">Add</span>
+                <span className="text-[11px]">Camera</span>
+              </button>
+            )}
+            {canAddMore && (
+              <button
+                onClick={() => fileInput.current?.click()}
+                className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-stone-700 bg-stone-800/50 text-stone-400"
+              >
+                <svg
+                  className="h-7 w-7"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <circle cx="9" cy="9" r="2" />
+                  <path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />
+                </svg>
+                <span className="text-[11px]">Library</span>
               </button>
             )}
           </div>
