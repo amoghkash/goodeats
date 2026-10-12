@@ -25,11 +25,14 @@ on your iPhone and it behaves like a native app.
 | `src/components/Camera.tsx` | Full-screen `getUserMedia` camera; flip between rear and selfie cameras, tap the shutter repeatedly, or pull in photos from the library |
 | `src/lib/images.ts` | Compresses library photos to ≤1280px JPEG before upload |
 | `src/components/PhotoCarousel.tsx` | Swipeable multi-photo carousel (dots + counter) used on cards |
+| `src/pages/Notes.tsx` | Short notes (≤280 chars) you send each other through the day; chat-style thread with "Seen" receipts. Open it from the 💬 icon on the feed (shows an unread badge) |
 | `src/pages/Settings.tsx` | View your profile, enable notifications, iOS install hint, sign out |
 | `src/lib/entries.ts` | Shared data helpers (fetch / edit caption / delete), realtime-backed |
+| `src/lib/notes.ts` | Notes helpers (fetch / send / mark read / delete) + live unread count |
 | `src/sw.ts` | Service worker: offline shell + `push` / `notificationclick` handlers |
 | `supabase/migrations/*.sql` | Tables, RLS (incl. caption-edit policy), and the private photo bucket |
 | `supabase/functions/notify-on-entry` | Webhook target: push the *other* user when someone posts |
+| `supabase/functions/notify-on-note` | Webhook target: push a note to its recipient |
 | `supabase/functions/daily-reminder` | Cron target: nudge anyone who hasn't logged today |
 
 ---
@@ -69,7 +72,7 @@ just wraps `npx supabase …`):
 ```bash
 npm run sb:login                # opens a browser to authenticate (one-time)
 npm run sb:link                 # links to project pivsplitiahvcmqywgnh (asks for DB password)
-npm run db:push                 # runs supabase/migrations/0001_init.sql on your project
+npm run db:push                 # runs every file in supabase/migrations/ on your project
 ```
 
 > `sb:login` is interactive — if it doesn't open automatically, run it from your
@@ -109,7 +112,7 @@ npm run vapid
 ### 5. Deploy the Edge Functions
 
 ```bash
-npm run functions:deploy        # deploys notify-on-entry and daily-reminder
+npm run functions:deploy        # deploys notify-on-entry, notify-on-note and daily-reminder
 ```
 
 ### 6. Wire up "notify when friend posts"
@@ -119,6 +122,12 @@ npm run functions:deploy        # deploys notify-on-entry and daily-reminder
 - Table: `entries`, Events: **Insert**
 - Type: **Supabase Edge Function** → `notify-on-entry`
 - Method `POST`; it auto-includes the service-role auth header.
+
+Then a second hook for notes — **Database → Webhooks → Create a new hook:**
+
+- Table: `notes`, Events: **Insert**
+- Type: **Supabase Edge Function** → `notify-on-note`
+- Method `POST`.
 
 ### 7. Schedule the daily reminder
 
@@ -177,6 +186,8 @@ open **GoodEats** from the home screen → **Settings → Enable** notifications
 
 - Log in, tap **+**, take a photo, post it — it should appear in the feed instantly.
 - On the other phone (installed PWA), you should get a push within a few seconds.
+- Tap the 💬 icon on the feed and send a note — the other phone gets a push with the
+  note text, and tapping it opens the Notes thread.
 - Manually fire the reminder to test it:
   ```bash
   curl -X POST 'https://<PROJECT-REF>.supabase.co/functions/v1/daily-reminder' \
@@ -196,5 +207,5 @@ open **GoodEats** from the home screen → **Settings → Enable** notifications
 | `npm run sb:link` | Link the CLI to your Supabase project |
 | `npm run db:push` | Run migrations against your linked project |
 | `npm run db:new <name>` | Create a new migration file |
-| `npm run functions:deploy` | Deploy both Edge Functions |
+| `npm run functions:deploy` | Deploy all Edge Functions |
 | `npm run sb:start` / `sb:stop` | Run/stop the full Supabase stack locally (needs Docker) |

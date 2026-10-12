@@ -395,6 +395,11 @@ verify_jwt = true
 [functions.daily-reminder]
 verify_jwt = true
 
+# Push when your friend sends you a note. Invoked by the notes-insert Database
+# Webhook with the service-role key.
+[functions.notify-on-note]
+verify_jwt = true
+
 [analytics]
 enabled = true
 port = 54327

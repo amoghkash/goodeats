@@ -35,3 +35,15 @@ export interface Entry {
 export interface EntryWithProfile extends Entry {
   profiles: Profile | null
 }
+
+/** Longest note you can send (also enforced by a DB check constraint). */
+export const NOTE_MAX_LENGTH = 280
+
+export interface Note {
+  id: string
+  sender_id: string
+  recipient_id: string
+  body: string
+  created_at: string
+  read_at: string | null
+}
