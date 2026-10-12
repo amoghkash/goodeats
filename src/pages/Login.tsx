@@ -17,13 +17,23 @@ export default function Login() {
     // On success, the onAuthStateChange listener swaps us into the app.
   }
 
+  const input =
+    'w-full rounded-2xl border border-line bg-surface px-4 py-3.5 text-base outline-none transition placeholder:text-stone-600 focus:border-orange-500/70'
+
   return (
-    <div className="safe-top flex h-full flex-col items-center justify-center px-6">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <img src="/pwa-192x192.png" alt="" className="mb-3 h-16 w-16 rounded-2xl" />
-          <h1 className="text-2xl font-bold">GoodEats</h1>
-          <p className="mt-1 text-sm text-stone-400">
+    <div className="safe-top relative flex min-h-dvh flex-col items-center justify-center overflow-hidden px-6 py-10">
+      <div className="bg-brand pointer-events-none absolute -top-32 left-1/2 h-72 w-96 -translate-x-1/2 rounded-full opacity-25 blur-3xl" />
+      <div className="animate-rise relative w-full max-w-sm">
+        <div className="mb-10 flex flex-col items-center text-center">
+          <img
+            src="/pwa-192x192.png"
+            alt=""
+            className="mb-5 h-20 w-20 rounded-[26px] shadow-2xl shadow-orange-500/30"
+          />
+          <h1 className="text-brand font-display text-5xl font-bold tracking-tight">
+            GoodEats
+          </h1>
+          <p className="mt-2 text-sm text-stone-400">
             Log what you eat, share it with your friend.
           </p>
         </div>
@@ -37,7 +47,7 @@ export default function Login() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded-xl border border-stone-700 bg-stone-800 px-4 py-3 text-base outline-none focus:border-orange-500"
+            className={input}
           />
           <input
             type="password"
@@ -46,19 +56,19 @@ export default function Login() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="rounded-xl border border-stone-700 bg-stone-800 px-4 py-3 text-base outline-none focus:border-orange-500"
+            className={input}
           />
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p className="px-1 text-sm text-rose-400">{error}</p>}
           <button
             type="submit"
             disabled={submitting}
-            className="mt-2 rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white transition active:scale-[0.99] disabled:opacity-50"
+            className="bg-brand mt-2 rounded-2xl px-4 py-3.5 font-semibold text-white shadow-lg shadow-orange-500/25 transition active:scale-[0.99] disabled:opacity-50"
           >
             {submitting ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-xs text-stone-500">
+        <p className="mt-8 text-center text-xs text-stone-600">
           Accounts are invite-only. Ask the other person to set yours up.
         </p>
       </div>

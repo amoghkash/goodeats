@@ -11,7 +11,7 @@ export default function PhotoCarousel({
   const [index, setIndex] = useState(0)
 
   if (urls.length === 0) {
-    return <div className="aspect-square w-full bg-stone-800" />
+    return <div className="aspect-square w-full bg-raised" />
   }
 
   if (urls.length === 1) {
@@ -20,7 +20,7 @@ export default function PhotoCarousel({
         src={urls[0]}
         alt={alt}
         loading="lazy"
-        className="aspect-square w-full bg-stone-800 object-cover"
+        className="aspect-square w-full bg-raised object-cover"
       />
     )
   }
@@ -43,21 +43,21 @@ export default function PhotoCarousel({
             src={u}
             alt={`${alt} ${i + 1}`}
             loading="lazy"
-            className="aspect-square w-full shrink-0 snap-center bg-stone-800 object-cover"
+            className="aspect-square w-full shrink-0 snap-center bg-raised object-cover"
           />
         ))}
       </div>
 
-      <span className="absolute right-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-xs font-medium text-white">
+      <span className="glass absolute right-3 top-3 rounded-full px-2.5 py-0.5 text-xs font-semibold text-white">
         {index + 1}/{urls.length}
       </span>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center gap-1.5">
+      <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center gap-1.5">
         {urls.map((_, i) => (
           <span
             key={i}
-            className={`h-1.5 w-1.5 rounded-full transition ${
-              i === index ? 'bg-white' : 'bg-white/40'
+            className={`h-1.5 rounded-full transition-all ${
+              i === index ? 'w-4 bg-white' : 'w-1.5 bg-white/50'
             }`}
           />
         ))}

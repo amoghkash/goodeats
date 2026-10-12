@@ -10,8 +10,10 @@ import Notes from './pages/Notes'
 
 function Loading() {
   return (
-    <div className="flex h-full items-center justify-center text-stone-400">
-      Loading…
+    <div className="flex h-dvh items-center justify-center">
+      <span className="text-brand animate-pulse font-display text-3xl font-bold">
+        GoodEats
+      </span>
     </div>
   )
 }

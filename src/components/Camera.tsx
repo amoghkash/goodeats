@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { compressImages } from '../lib/images'
+import { FlipIcon, GalleryIcon } from './icons'
 
 interface CameraShot {
   file: File
@@ -150,21 +151,7 @@ export default function Camera({ initialCount, max, onDone, onCancel }: Props) {
     />
   )
 
-  const galleryIcon = (
-    <svg
-      className="h-6 w-6"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <circle cx="9" cy="9" r="2" />
-      <path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />
-    </svg>
-  )
+  const galleryIcon = <GalleryIcon className="h-6 w-6" />
 
   if (error) {
     return (
@@ -181,14 +168,14 @@ export default function Camera({ initialCount, max, onDone, onCancel }: Props) {
           {remaining > 0 && (
             <button
               onClick={() => fileInput.current?.click()}
-              className="rounded-xl bg-stone-700 px-5 py-2.5 font-medium text-white"
+              className="rounded-full bg-white/15 px-5 py-2.5 font-semibold text-white"
             >
               Choose from library
             </button>
           )}
           <button
             onClick={shots.length > 0 ? done : cancel}
-            className="rounded-xl bg-orange-500 px-5 py-2.5 font-medium text-white"
+            className="bg-brand rounded-full px-5 py-2.5 font-semibold text-white"
           >
             {shots.length > 0 ? 'Done' : 'Close'}
           </button>
@@ -230,7 +217,7 @@ export default function Camera({ initialCount, max, onDone, onCancel }: Props) {
                 key={s.url}
                 src={s.url}
                 alt="Added photo"
-                className="h-14 w-14 shrink-0 rounded-lg object-cover"
+                className="animate-rise h-14 w-14 shrink-0 rounded-xl object-cover ring-1 ring-white/20"
               />
             ))}
           </div>
@@ -255,18 +242,7 @@ export default function Camera({ initialCount, max, onDone, onCancel }: Props) {
                 }
                 className="flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white"
               >
-                <svg
-                  className="h-6 w-6"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M20 10a8 8 0 0 0-14.9-3M4 4v3h3" />
-                  <path d="M4 14a8 8 0 0 0 14.9 3M20 20v-3h-3" />
-                </svg>
+<FlipIcon className="h-6 w-6" />
               </button>
             )}
           </div>
@@ -274,13 +250,17 @@ export default function Camera({ initialCount, max, onDone, onCancel }: Props) {
             onClick={capture}
             disabled={remaining <= 0}
             aria-label="Take photo"
-            className="h-16 w-16 rounded-full border-4 border-white bg-white/25 transition active:scale-95 disabled:opacity-40"
-          />
+            className="flex h-[72px] w-[72px] items-center justify-center rounded-full border-4 border-white/90 transition active:scale-90 disabled:opacity-40"
+          >
+            <span className="h-14 w-14 rounded-full bg-white" />
+          </button>
           <button
             onClick={done}
-            className="w-24 text-right font-semibold text-orange-400"
+            className="flex w-24 justify-end"
           >
-            Done
+            <span className="bg-brand rounded-full px-4 py-2 text-sm font-semibold text-white">
+              Done
+            </span>
           </button>
         </div>
       </div>

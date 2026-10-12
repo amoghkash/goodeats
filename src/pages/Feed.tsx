@@ -10,6 +10,8 @@ import {
 } from '../lib/entries'
 import { useUnreadNoteCount } from '../lib/notes'
 import EntryCard from '../components/EntryCard'
+import PageHeader from '../components/PageHeader'
+import { ChatIcon } from '../components/icons'
 
 export default function Feed() {
   const { session } = useAuth()
@@ -63,73 +65,93 @@ export default function Feed() {
 
   return (
     <div>
-      <header className="safe-top sticky top-0 z-10 flex items-center justify-between border-b border-stone-800 bg-stone-900 px-4 py-3">
-        <h1 className="text-lg font-bold">GoodEats</h1>
-        <Link
-          to="/notes"
-          aria-label={
-            unreadNotes > 0 ? `Notes (${unreadNotes} unread)` : 'Notes'
-          }
-          className="relative -mr-1 p-1 text-stone-300"
-        >
-          <svg
-            className="h-6 w-6"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+      <PageHeader
+        right={
+          <Link
+            to="/notes"
+            aria-label={
+              unreadNotes > 0 ? `Notes (${unreadNotes} unread)` : 'Notes'
+            }
+            className="relative -mr-1 flex h-10 w-10 items-center justify-center rounded-full bg-raised text-stone-200 ring-1 ring-line transition active:scale-95"
           >
-            <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.9-.9L3 20.5l1.6-4.4A8.1 8.1 0 0 1 3 11.5 8.6 8.6 0 0 1 12 3a8.6 8.6 0 0 1 9 8.5Z" />
-          </svg>
-          {unreadNotes > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-orange-500 px-1 text-[10px] font-bold text-white">
-              {unreadNotes > 9 ? '9+' : unreadNotes}
-            </span>
-          )}
-        </Link>
-      </header>
+            <ChatIcon className="h-5 w-5" />
+            {unreadNotes > 0 && (
+              <span className="bg-brand absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white ring-2 ring-canvas">
+                {unreadNotes > 9 ? '9+' : unreadNotes}
+              </span>
+            )}
+          </Link>
+        }
+      >
+        <h1 className="text-brand font-display text-[26px] font-bold tracking-tight">
+          GoodEats
+        </h1>
+      </PageHeader>
 
       {error && (
-        <p className="px-4 py-6 text-center text-sm text-red-400">{error}</p>
+        <p className="px-4 py-6 text-center text-sm text-rose-400">{error}</p>
       )}
 
       {entries === null && (
-        <p className="px-4 py-10 text-center text-stone-400">Loading feed…</p>
+        <div className="space-y-4 px-3 py-4">
+          {[0, 1].map((i) => (
+            <div
+              key={i}
+              className="animate-pulse overflow-hidden rounded-3xl bg-surface ring-1 ring-line"
+            >
+              <div className="flex items-center gap-3 px-4 py-3">
+                <span className="h-9 w-9 rounded-full bg-raised" />
+                <span className="h-3 w-28 rounded-full bg-raised" />
+              </div>
+              <div className="aspect-square bg-raised" />
+            </div>
+          ))}
+        </div>
       )}
 
       {entries !== null && entries.length === 0 && !error && (
-        <div className="px-6 py-16 text-center text-stone-400">
-          <p className="text-4xl">🍽️</p>
-          <p className="mt-3 font-medium text-stone-200">No meals yet</p>
-          <p className="mt-1 text-sm">Tap the + button to log your first meal.</p>
+        <div className="animate-rise flex flex-col items-center px-8 py-20 text-center">
+          <span className="bg-brand flex h-20 w-20 items-center justify-center rounded-[28px] text-4xl shadow-xl shadow-orange-500/20">
+            🍽️
+          </span>
+          <p className="mt-5 font-display text-2xl font-semibold">
+            Nothing on the table yet
+          </p>
+          <p className="mt-2 text-sm text-stone-400">
+            Snap your next meal and it’ll show up here for both of you.
+          </p>
           <Link
             to="/add"
-            className="mt-5 inline-block rounded-xl bg-orange-500 px-5 py-2.5 font-semibold text-white"
+            className="bg-brand mt-6 rounded-full px-6 py-3 font-semibold text-white shadow-lg shadow-orange-500/25 transition active:scale-[0.98]"
           >
             Log a meal
           </Link>
         </div>
       )}
 
-      {entries?.map((e) => (
-        <EntryCard
-          key={e.id}
-          id={e.id}
-          authorId={e.userId}
-          authorName={e.authorName}
-          photoUrls={e.photoUrls}
-          caption={e.caption}
-          mealType={e.mealType}
-          createdAt={e.createdAt}
-          isMine={e.userId === myId}
-          onEditCaption={
-            e.userId === myId ? (caption) => handleEdit(e.id, caption) : undefined
-          }
-          onDelete={e.userId === myId ? () => handleDelete(e) : undefined}
-        />
-      ))}
+      {entries && entries.length > 0 && (
+        <div className="space-y-4 px-3 py-4">
+          {entries.map((e) => (
+            <EntryCard
+              key={e.id}
+              id={e.id}
+              authorId={e.userId}
+              authorName={e.authorName}
+              photoUrls={e.photoUrls}
+              caption={e.caption}
+              mealType={e.mealType}
+              createdAt={e.createdAt}
+              isMine={e.userId === myId}
+              onEditCaption={
+                e.userId === myId
+                  ? (caption) => handleEdit(e.id, caption)
+                  : undefined
+              }
+              onDelete={e.userId === myId ? () => handleDelete(e) : undefined}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

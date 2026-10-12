@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { PHOTO_BUCKET, supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import Camera from '../components/Camera'
+import PageHeader from '../components/PageHeader'
+import { CameraIcon, CloseIcon, GalleryIcon } from '../components/icons'
 import { compressImages } from '../lib/images'
 import {
   MAX_PHOTOS,
@@ -119,20 +121,22 @@ export default function Add() {
 
   return (
     <div>
-      <header className="safe-top sticky top-0 z-10 flex items-center justify-between border-b border-stone-800 bg-stone-900 px-4 py-3">
-        <h1 className="text-lg font-bold">Log a meal</h1>
-        {shots.length > 0 && (
-          <button
-            onClick={handlePost}
-            disabled={busy}
-            className="rounded-lg bg-orange-500 px-4 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
-          >
-            {busy ? 'Posting…' : 'Post'}
-          </button>
-        )}
-      </header>
+      <PageHeader
+        title="Log a meal"
+        right={
+          shots.length > 0 && (
+            <button
+              onClick={handlePost}
+              disabled={busy}
+              className="bg-brand rounded-full px-5 py-2 text-sm font-semibold text-white shadow-md shadow-orange-500/25 transition active:scale-95 disabled:opacity-50"
+            >
+              {busy ? 'Posting…' : 'Post'}
+            </button>
+          )
+        }
+      />
 
-      <div className="p-4">
+      <div className="space-y-6 p-4">
         <input
           ref={fileInput}
           type="file"
@@ -142,155 +146,116 @@ export default function Add() {
         />
 
         {shots.length === 0 ? (
-          <>
+          <div className="space-y-3">
             <button
               onClick={() => setCameraOpen(true)}
-              className="flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-stone-700 bg-stone-800/50 text-stone-400 transition active:scale-[0.99]"
+              className="relative flex aspect-[4/3] w-full flex-col items-center justify-center gap-3 overflow-hidden rounded-3xl bg-surface ring-1 ring-line transition active:scale-[0.99]"
             >
-              <svg
-                className="h-12 w-12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                <circle cx="12" cy="13" r="4" />
-              </svg>
-              <span className="font-medium">Take photos</span>
+              <div className="bg-brand pointer-events-none absolute -bottom-20 left-1/2 h-40 w-64 -translate-x-1/2 rounded-full opacity-20 blur-3xl" />
+              <span className="bg-brand flex h-16 w-16 items-center justify-center rounded-[22px] text-white shadow-lg shadow-orange-500/30">
+                <CameraIcon className="h-8 w-8" />
+              </span>
+              <span className="font-display text-xl font-semibold">
+                Take photos
+              </span>
               <span className="text-xs text-stone-500">Up to {MAX_PHOTOS}</span>
             </button>
             <button
               onClick={() => fileInput.current?.click()}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-stone-700 bg-stone-800 py-3 text-sm font-medium text-stone-300 transition active:scale-[0.99]"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-surface py-3.5 text-sm font-semibold text-stone-200 ring-1 ring-line transition active:scale-[0.99]"
             >
-              <svg
-                className="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <circle cx="9" cy="9" r="2" />
-                <path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />
-              </svg>
+              <GalleryIcon className="h-5 w-5 text-stone-400" />
               Choose from library
             </button>
-          </>
+          </div>
         ) : (
-          <div className="grid grid-cols-3 gap-2">
-            {shots.map((shot, i) => (
-              <div
-                key={shot.preview}
-                className="relative aspect-square overflow-hidden rounded-xl"
-              >
-                <img
-                  src={shot.preview}
-                  alt={`Selected ${i + 1}`}
-                  className="h-full w-full object-cover"
-                />
-                <button
-                  onClick={() => removeShot(i)}
-                  aria-label="Remove photo"
-                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white"
+          <div>
+            <div className="grid grid-cols-3 gap-2">
+              {shots.map((shot, i) => (
+                <div
+                  key={shot.preview}
+                  className="animate-rise relative aspect-square overflow-hidden rounded-2xl"
                 >
-                  <svg
-                    className="h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
+                  <img
+                    src={shot.preview}
+                    alt={`Selected ${i + 1}`}
+                    className="h-full w-full object-cover"
+                  />
+                  <button
+                    onClick={() => removeShot(i)}
+                    aria-label="Remove photo"
+                    className="glass absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full text-white"
                   >
-                    <path d="M18 6 6 18M6 6l12 12" />
-                  </svg>
+                    <CloseIcon className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+              {canAddMore && (
+                <button
+                  onClick={() => setCameraOpen(true)}
+                  className="flex aspect-square flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-stone-700 bg-surface text-stone-400 transition active:scale-95"
+                >
+                  <CameraIcon className="h-6 w-6" />
+                  <span className="text-[11px] font-medium">Camera</span>
                 </button>
-              </div>
-            ))}
-            {canAddMore && (
-              <button
-                onClick={() => setCameraOpen(true)}
-                className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-stone-700 bg-stone-800/50 text-stone-400"
-              >
-                <svg
-                  className="h-7 w-7"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+              )}
+              {canAddMore && (
+                <button
+                  onClick={() => fileInput.current?.click()}
+                  className="flex aspect-square flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-stone-700 bg-surface text-stone-400 transition active:scale-95"
                 >
-                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                  <circle cx="12" cy="13" r="4" />
-                </svg>
-                <span className="text-[11px]">Camera</span>
-              </button>
-            )}
-            {canAddMore && (
-              <button
-                onClick={() => fileInput.current?.click()}
-                className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-stone-700 bg-stone-800/50 text-stone-400"
-              >
-                <svg
-                  className="h-7 w-7"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <rect x="3" y="3" width="18" height="18" rx="2" />
-                  <circle cx="9" cy="9" r="2" />
-                  <path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />
-                </svg>
-                <span className="text-[11px]">Library</span>
-              </button>
-            )}
+                  <GalleryIcon className="h-6 w-6" />
+                  <span className="text-[11px] font-medium">Library</span>
+                </button>
+              )}
+            </div>
+            <p className="mt-2 text-xs text-stone-500">
+              {shots.length}/{MAX_PHOTOS} photos
+            </p>
           </div>
         )}
 
-        {shots.length > 0 && (
-          <p className="mt-2 text-xs text-stone-500">
-            {shots.length}/{MAX_PHOTOS} photos
-          </p>
-        )}
-
-        <div className="mt-5">
-          <p className="mb-2 text-sm font-medium text-stone-300">Meal</p>
+        <section>
+          <h2 className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-stone-500">
+            Meal
+          </h2>
           <div className="grid grid-cols-4 gap-2">
-            {MEAL_TYPES.map((m) => (
-              <button
-                key={m}
-                onClick={() => setMealType(m)}
-                className={`flex flex-col items-center gap-1 rounded-xl border py-2.5 text-xs transition ${
-                  mealType === m
-                    ? 'border-orange-500 bg-orange-500/15 text-orange-300'
-                    : 'border-stone-700 bg-stone-800 text-stone-300'
-                }`}
-              >
-                <span className="text-lg">{MEAL_EMOJI[m]}</span>
-                {MEAL_LABELS[m]}
-              </button>
-            ))}
+            {MEAL_TYPES.map((m) => {
+              const active = mealType === m
+              return (
+                <button
+                  key={m}
+                  onClick={() => setMealType(m)}
+                  className={`flex flex-col items-center gap-1.5 rounded-2xl py-3 text-xs font-semibold transition active:scale-95 ${
+                    active
+                      ? 'bg-orange-500/15 text-orange-300 ring-2 ring-orange-500/70'
+                      : 'bg-surface text-stone-400 ring-1 ring-line'
+                  }`}
+                >
+                  <span className={`text-2xl transition ${active ? 'scale-110' : 'grayscale-[40%]'}`}>
+                    {MEAL_EMOJI[m]}
+                  </span>
+                  {MEAL_LABELS[m]}
+                </button>
+              )
+            })}
           </div>
-        </div>
+        </section>
 
-        <textarea
-          value={caption}
-          onChange={(e) => setCaption(e.target.value)}
-          placeholder="Add a note (optional)…"
-          rows={3}
-          className="mt-5 w-full resize-none rounded-xl border border-stone-700 bg-stone-800 px-4 py-3 text-base outline-none focus:border-orange-500"
-        />
+        <section>
+          <h2 className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-stone-500">
+            Caption
+          </h2>
+          <textarea
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
+            placeholder="How was it? (optional)"
+            rows={3}
+            className="w-full resize-none rounded-2xl border border-line bg-surface px-4 py-3 text-base outline-none transition placeholder:text-stone-600 focus:border-orange-500/70"
+          />
+        </section>
 
-        {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+        {error && <p className="text-sm text-rose-400">{error}</p>}
       </div>
     </div>
   )

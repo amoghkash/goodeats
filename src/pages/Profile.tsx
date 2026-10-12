@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import {
@@ -10,11 +10,14 @@ import {
   type EnrichedEntry,
 } from '../lib/entries'
 import EntryCard from '../components/EntryCard'
+import PageHeader from '../components/PageHeader'
+import Avatar from '../components/Avatar'
+import { CloseIcon, StackIcon } from '../components/icons'
+import { MEAL_EMOJI } from '../lib/types'
 
 export default function Profile() {
   const { id = '' } = useParams()
   const { session } = useAuth()
-  const navigate = useNavigate()
   const isMe = id === session?.user.id
 
   const [name, setName] = useState<string>('')
@@ -71,58 +74,54 @@ export default function Profile() {
   }
 
   const count = entries?.length ?? 0
+  const photoCount = entries?.reduce((n, e) => n + e.photoUrls.length, 0) ?? 0
   const selected = entries?.find((e) => e.id === selectedId) ?? null
 
   return (
     <div>
-      <header className="safe-top sticky top-0 z-10 flex items-center gap-3 border-b border-stone-800 bg-stone-900 px-4 py-3">
-        <button
-          onClick={() => navigate(-1)}
-          aria-label="Back"
-          className="-ml-1 text-stone-300"
-        >
-          <svg
-            className="h-6 w-6"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </button>
-        <h1 className="truncate text-lg font-bold">{name || 'Profile'}</h1>
-      </header>
+      <PageHeader back title={name || 'Profile'} />
 
-      <div className="flex flex-col items-center px-4 py-6 text-center">
-        <span className="flex h-20 w-20 items-center justify-center rounded-full bg-orange-500/20 text-2xl font-semibold text-orange-400">
-          {(name || '?').charAt(0).toUpperCase()}
-        </span>
-        <p className="mt-3 text-xl font-bold">
+      <div className="relative flex flex-col items-center overflow-hidden px-4 pb-6 pt-8 text-center">
+        <div className="bg-brand pointer-events-none absolute -top-24 left-1/2 h-48 w-72 -translate-x-1/2 rounded-full opacity-25 blur-3xl" />
+        <Avatar id={id} name={name || '?'} size="lg" ring />
+        <p className="mt-4 font-display text-3xl font-semibold tracking-tight">
           {name}
-          {isMe && (
-            <span className="ml-2 rounded-full bg-stone-700 px-2 py-0.5 align-middle text-[11px] font-medium text-stone-300">
-              You
-            </span>
-          )}
         </p>
-        <p className="mt-1 text-sm text-stone-400">
-          {count} {count === 1 ? 'meal' : 'meals'} logged
-        </p>
+        {isMe && (
+          <span className="mt-1.5 rounded-full bg-raised px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-stone-400 ring-1 ring-line">
+            You
+          </span>
+        )}
+        <div className="mt-5 flex gap-3">
+          <div className="min-w-24 rounded-2xl bg-surface px-4 py-2.5 ring-1 ring-line">
+            <p className="font-display text-2xl font-semibold">{count}</p>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-stone-500">
+              {count === 1 ? 'Meal' : 'Meals'}
+            </p>
+          </div>
+          <div className="min-w-24 rounded-2xl bg-surface px-4 py-2.5 ring-1 ring-line">
+            <p className="font-display text-2xl font-semibold">{photoCount}</p>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-stone-500">
+              {photoCount === 1 ? 'Photo' : 'Photos'}
+            </p>
+          </div>
+        </div>
       </div>
 
       {error && (
-        <p className="px-4 py-6 text-center text-sm text-red-400">{error}</p>
+        <p className="px-4 py-6 text-center text-sm text-rose-400">{error}</p>
       )}
 
       {entries === null && (
-        <p className="px-4 py-10 text-center text-stone-400">Loading…</p>
+        <div className="grid animate-pulse grid-cols-3 gap-1.5 px-3">
+          {Array.from({ length: 6 }, (_, i) => (
+            <div key={i} className="aspect-square rounded-xl bg-surface" />
+          ))}
+        </div>
       )}
 
       {entries !== null && entries.length === 0 && !error && (
-        <div className="px-6 py-12 text-center text-stone-400">
+        <div className="px-6 py-10 text-center text-stone-400">
           <p className="text-4xl">🍽️</p>
           <p className="mt-3">
             {isMe ? 'You haven’t' : `${name} hasn’t`} logged any meals yet.
@@ -130,7 +129,7 @@ export default function Profile() {
           {isMe && (
             <Link
               to="/add"
-              className="mt-5 inline-block rounded-xl bg-orange-500 px-5 py-2.5 font-semibold text-white"
+              className="bg-brand mt-5 inline-block rounded-full px-6 py-3 font-semibold text-white shadow-lg shadow-orange-500/25"
             >
               Log a meal
             </Link>
@@ -139,12 +138,12 @@ export default function Profile() {
       )}
 
       {entries && entries.length > 0 && (
-        <div className="grid grid-cols-3 gap-0.5">
+        <div className="grid grid-cols-3 gap-1.5 px-3 pb-6">
           {entries.map((e) => (
             <button
               key={e.id}
               onClick={() => setSelectedId(e.id)}
-              className="relative aspect-square bg-stone-800"
+              className="animate-rise relative aspect-square overflow-hidden rounded-xl bg-surface transition active:scale-[0.97]"
             >
               <img
                 src={e.photoUrls[0]}
@@ -152,16 +151,12 @@ export default function Profile() {
                 loading="lazy"
                 className="h-full w-full object-cover"
               />
+              <span className="absolute bottom-1 left-1 text-sm drop-shadow">
+                {MEAL_EMOJI[e.mealType]}
+              </span>
               {e.photoUrls.length > 1 && (
-                <span className="absolute right-1 top-1 text-white drop-shadow">
-                  <svg
-                    className="h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    aria-label="Multiple photos"
-                  >
-                    <path d="M7 4h12a2 2 0 0 1 2 2v12h-2V6H7V4zM3 8h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z" />
-                  </svg>
+                <span className="absolute right-1.5 top-1.5 text-white drop-shadow">
+                  <StackIcon className="h-4 w-4" />
                 </span>
               )}
             </button>
@@ -171,29 +166,20 @@ export default function Profile() {
 
       {selected && (
         <div
-          className="fixed inset-0 z-50 overflow-y-auto bg-black/90"
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md"
           onClick={() => setSelectedId(null)}
         >
           <div className="safe-top flex items-center justify-end px-4 py-3">
             <button
               onClick={() => setSelectedId(null)}
               aria-label="Close"
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-stone-800 text-stone-200"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-stone-100"
             >
-              <svg
-                className="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-              >
-                <path d="M18 6 6 18M6 6l12 12" />
-              </svg>
+              <CloseIcon className="h-5 w-5" />
             </button>
           </div>
           <div
-            className="mx-auto max-w-md pb-10"
+            className="mx-auto max-w-md px-3 pb-10"
             onClick={(e) => e.stopPropagation()}
           >
             <EntryCard

@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { format, isToday, isYesterday } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import { fetchProfiles } from '../lib/entries'
 import { deleteNote, fetchNotes, markNotesRead, sendNote } from '../lib/notes'
+import PageHeader from '../components/PageHeader'
+import Avatar from '../components/Avatar'
+import { SendIcon } from '../components/icons'
 import { NOTE_MAX_LENGTH, type Note, type Profile } from '../lib/types'
 
 function dayLabel(date: Date) {
@@ -16,7 +18,6 @@ function dayLabel(date: Date) {
 export default function Notes() {
   const { session } = useAuth()
   const myId = session?.user.id
-  const navigate = useNavigate()
 
   const [friend, setFriend] = useState<Profile | null>(null)
   const [notes, setNotes] = useState<Note[] | null>(null)
@@ -92,39 +93,38 @@ export default function Notes() {
 
   return (
     <div className="flex min-h-full flex-col">
-      <header className="safe-top sticky top-0 z-10 flex items-center gap-3 border-b border-stone-800 bg-stone-900 px-4 py-3">
-        <button
-          onClick={() => navigate('/')}
-          aria-label="Back"
-          className="-ml-1 text-stone-300"
-        >
-          <svg
-            className="h-6 w-6"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </button>
-        <h1 className="truncate text-lg font-bold">
-          Notes{friend ? ` with ${friend.display_name}` : ''}
-        </h1>
-      </header>
+      <PageHeader back="/">
+        {friend ? (
+          <div className="flex min-w-0 items-center gap-2.5">
+            <Avatar id={friend.id} name={friend.display_name} />
+            <div className="min-w-0">
+              <h1 className="truncate text-[15px] font-semibold leading-tight">
+                {friend.display_name}
+              </h1>
+              <p className="text-xs text-stone-500">Notes</p>
+            </div>
+          </div>
+        ) : (
+          <h1 className="font-display text-[22px] font-semibold tracking-tight">
+            Notes
+          </h1>
+        )}
+      </PageHeader>
 
       <div className="flex-1 px-4 py-3">
         {notes === null && (
-          <p className="py-10 text-center text-stone-400">Loading…</p>
+          <p className="py-10 text-center text-stone-500">Loading…</p>
         )}
 
         {notes !== null && notes.length === 0 && !error && (
-          <div className="px-2 py-16 text-center text-stone-400">
-            <p className="text-4xl">💬</p>
-            <p className="mt-3 font-medium text-stone-200">No notes yet</p>
-            <p className="mt-1 text-sm">
+          <div className="animate-rise flex flex-col items-center px-6 py-20 text-center">
+            <span className="flex h-16 w-16 items-center justify-center rounded-[22px] bg-raised text-3xl ring-1 ring-line">
+              💬
+            </span>
+            <p className="mt-4 font-display text-xl font-semibold">
+              No notes yet
+            </p>
+            <p className="mt-1.5 text-sm text-stone-400">
               Send {friendName} a quick note — they’ll get a notification.
             </p>
           </div>
@@ -134,34 +134,42 @@ export default function Notes() {
           const mine = n.sender_id === myId
           const date = new Date(n.created_at)
           const prev = notes[i - 1]
+          const next = notes[i + 1]
           const newDay =
             !prev ||
             new Date(prev.created_at).toDateString() !== date.toDateString()
+          // Only show the time under the last note in a run from one person.
+          const lastInRun =
+            !next ||
+            next.sender_id !== n.sender_id ||
+            new Date(next.created_at).toDateString() !== date.toDateString()
           return (
             <div key={n.id}>
               {newDay && (
-                <p className="py-3 text-center text-xs font-medium text-stone-500">
+                <p className="py-4 text-center text-[11px] font-semibold uppercase tracking-wider text-stone-600">
                   {dayLabel(date)}
                 </p>
               )}
               <div
-                className={`mb-2 flex flex-col ${mine ? 'items-end' : 'items-start'}`}
+                className={`flex flex-col ${mine ? 'items-end' : 'items-start'} ${lastInRun ? 'mb-3' : 'mb-1'}`}
               >
                 <button
                   onClick={mine ? () => handleDelete(n) : undefined}
                   disabled={!mine}
-                  className={`max-w-[80%] whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2 text-left text-sm ${
+                  className={`max-w-[80%] whitespace-pre-wrap break-words rounded-3xl px-4 py-2.5 text-left text-[15px] leading-snug ${
                     mine
-                      ? 'rounded-br-md bg-orange-500 text-white'
-                      : 'rounded-bl-md bg-stone-800 text-stone-100'
-                  }`}
+                      ? 'bg-brand text-white shadow-md shadow-orange-500/15'
+                      : 'bg-raised text-stone-100 ring-1 ring-line'
+                  } ${lastInRun ? (mine ? 'rounded-br-lg' : 'rounded-bl-lg') : ''}`}
                 >
                   {n.body}
                 </button>
-                <p className="mt-0.5 px-1 text-[11px] text-stone-500">
-                  {format(date, 'h:mm a')}
-                  {n.id === lastMine?.id && n.read_at && ' · Seen'}
-                </p>
+                {lastInRun && (
+                  <p className="mt-1 px-2 text-[11px] text-stone-600">
+                    {format(date, 'h:mm a')}
+                    {n.id === lastMine?.id && n.read_at && ' · Seen'}
+                  </p>
+                )}
               </div>
             </div>
           )
@@ -169,8 +177,8 @@ export default function Notes() {
         <div ref={endRef} />
       </div>
 
-      <div className="sticky bottom-0 border-t border-stone-800 bg-stone-900 px-3 py-2">
-        {error && <p className="mb-1 px-1 text-xs text-red-400">{error}</p>}
+      <div className="glass sticky bottom-0 border-t border-line px-3 py-2.5">
+        {error && <p className="mb-1 px-1 text-xs text-rose-400">{error}</p>}
         {notes !== null && !friend && !error && (
           <p className="mb-1 px-1 text-xs text-stone-500">
             Add your friend’s profile to start sending notes.
@@ -190,29 +198,19 @@ export default function Notes() {
             maxLength={NOTE_MAX_LENGTH}
             enterKeyHint="send"
             placeholder={`Note to ${friendName}…`}
-            className="max-h-28 min-h-10 flex-1 resize-none rounded-2xl border border-stone-700 bg-stone-800 px-3.5 py-2 text-base outline-none focus:border-orange-500"
+            className="max-h-28 min-h-11 flex-1 resize-none rounded-3xl border border-line bg-surface px-4 py-2.5 text-base outline-none transition placeholder:text-stone-600 focus:border-orange-500/70"
           />
           <button
             onClick={send}
             disabled={!draft.trim() || !friend || sending}
             aria-label="Send note"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-500 text-white transition disabled:opacity-40"
+            className="bg-brand flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white shadow-md shadow-orange-500/25 transition active:scale-90 disabled:opacity-35 disabled:shadow-none"
           >
-            <svg
-              className="h-5 w-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 19V5M5 12l7-7 7 7" />
-            </svg>
+            <SendIcon className="h-5 w-5" />
           </button>
         </div>
         {remaining <= 40 && (
-          <p className="mt-1 px-1 text-right text-[11px] text-stone-500">
+          <p className="mt-1 px-2 text-right text-[11px] text-stone-500">
             {remaining} left
           </p>
         )}

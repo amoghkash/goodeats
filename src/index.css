@@ -1,5 +1,37 @@
 @import 'tailwindcss';
 
+/* Self-hosted variable fonts (Latin subset only, so they precache small and
+   work offline). Fraunces for headings, Plus Jakarta Sans for everything else. */
+@font-face {
+  font-family: 'Fraunces Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2')
+    format('woff2-variations');
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url('@fontsource-variable/plus-jakarta-sans/files/plus-jakarta-sans-latin-wght-normal.woff2')
+    format('woff2-variations');
+}
+
+@theme {
+  --font-sans:
+    'Plus Jakarta Sans Variable', system-ui, -apple-system, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-display: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
+
+  /* Warm near-black surfaces, lightest last. */
+  --color-canvas: #0f0d0b;
+  --color-surface: #1a1714;
+  --color-raised: #25211d;
+  --color-line: rgb(255 255 255 / 0.07);
+}
+
 :root {
   color-scheme: dark;
 }
@@ -18,13 +50,30 @@ body,
 
 body {
   margin: 0;
-  background-color: #1c1917; /* stone-900 */
+  background-color: var(--color-canvas);
   color: #fafaf9; /* stone-50 */
-  font-family:
-    system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   /* Prevent pull-to-refresh / overscroll bounce feeling un-app-like */
   overscroll-behavior-y: none;
+}
+
+/* Brand gradient: warm orange into coral. */
+@utility bg-brand {
+  background-image: linear-gradient(135deg, #fb923c 0%, #f97316 45%, #f43f5e 100%);
+}
+@utility text-brand {
+  background-image: linear-gradient(120deg, #fdba74 0%, #fb923c 40%, #f43f5e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Frosted bar used by headers and the bottom nav. */
+@utility glass {
+  background-color: rgb(15 13 11 / 0.78);
+  -webkit-backdrop-filter: saturate(160%) blur(18px);
+  backdrop-filter: saturate(160%) blur(18px);
 }
 
 /* Respect the iPhone notch / home indicator safe areas */
@@ -50,6 +99,9 @@ input[type='file'] {
 button {
   -webkit-tap-highlight-color: transparent;
 }
+a {
+  -webkit-tap-highlight-color: transparent;
+}
 
 /* Horizontal carousels: hide the scrollbar but keep swipe/scroll-snap */
 .no-scrollbar {
@@ -58,4 +110,24 @@ button {
 }
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* Gentle entrance for cards and list items. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-rise {
+  animation: rise-in 0.35s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise {
+    animation: none;
+  }
 }
