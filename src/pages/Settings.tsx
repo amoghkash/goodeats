@@ -94,8 +94,8 @@ export default function Settings() {
           )}
 
           {supported && needsInstall && (
-            <div className="rounded-3xl bg-orange-500/10 p-4 text-sm ring-1 ring-orange-500/30">
-              <p className="font-semibold text-orange-300">
+            <div className="rounded-3xl bg-berry-500/10 p-4 text-sm ring-1 ring-berry-500/30">
+              <p className="font-semibold text-berry-300">
                 Install the app to get notifications
               </p>
               <p className="mt-1 leading-relaxed text-stone-300">
@@ -108,7 +108,7 @@ export default function Settings() {
 
           {supported && !needsInstall && (
             <div className="flex items-center gap-3.5 rounded-3xl bg-surface p-4 ring-1 ring-line">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-orange-500/15 text-orange-400">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-berry-500/15 text-berry-400">
                 <BellIcon className="h-5 w-5" />
               </span>
               <div className="min-w-0 flex-1">
@@ -142,12 +142,12 @@ export default function Settings() {
               settings, then try again.
             </p>
           )}
-          {error && <p className="mt-2 px-1 text-sm text-rose-400">{error}</p>}
+          {error && <p className="mt-2 px-1 text-sm text-red-400">{error}</p>}
         </section>
 
         <button
           onClick={signOut}
-          className="flex w-full items-center justify-center gap-2 rounded-3xl bg-surface py-4 font-semibold text-rose-400 ring-1 ring-line transition active:scale-[0.99]"
+          className="flex w-full items-center justify-center gap-2 rounded-3xl bg-surface py-4 font-semibold text-red-400 ring-1 ring-line transition active:scale-[0.99]"
         >
           <LogOutIcon className="h-5 w-5" />
           Sign out

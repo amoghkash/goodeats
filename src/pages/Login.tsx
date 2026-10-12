@@ -18,7 +18,7 @@ export default function Login() {
   }
 
   const input =
-    'w-full rounded-2xl border border-line bg-surface px-4 py-3.5 text-base outline-none transition placeholder:text-stone-600 focus:border-orange-500/70'
+    'w-full rounded-2xl border border-line bg-surface px-4 py-3.5 text-base outline-none transition placeholder:text-stone-600 focus:border-berry-500/70'
 
   return (
     <div className="safe-top relative flex min-h-dvh flex-col items-center justify-center overflow-hidden px-6 py-10">
@@ -28,7 +28,7 @@ export default function Login() {
           <img
             src="/pwa-192x192.png"
             alt=""
-            className="mb-5 h-20 w-20 rounded-[26px] shadow-2xl shadow-orange-500/30"
+            className="mb-5 h-20 w-20 rounded-[26px] shadow-2xl shadow-berry-600/40"
           />
           <h1 className="text-brand font-display text-5xl font-bold tracking-tight">
             GoodEats
@@ -58,11 +58,11 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
             className={input}
           />
-          {error && <p className="px-1 text-sm text-rose-400">{error}</p>}
+          {error && <p className="px-1 text-sm text-red-400">{error}</p>}
           <button
             type="submit"
             disabled={submitting}
-            className="bg-brand mt-2 rounded-2xl px-4 py-3.5 font-semibold text-white shadow-lg shadow-orange-500/25 transition active:scale-[0.99] disabled:opacity-50"
+            className="bg-brand mt-2 rounded-2xl px-4 py-3.5 font-semibold text-white shadow-lg shadow-berry-600/35 transition active:scale-[0.99] disabled:opacity-50"
           >
             {submitting ? 'Signing in…' : 'Sign in'}
           </button>

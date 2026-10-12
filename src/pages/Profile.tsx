@@ -109,7 +109,7 @@ export default function Profile() {
       </div>
 
       {error && (
-        <p className="px-4 py-6 text-center text-sm text-rose-400">{error}</p>
+        <p className="px-4 py-6 text-center text-sm text-red-400">{error}</p>
       )}
 
       {entries === null && (
@@ -129,7 +129,7 @@ export default function Profile() {
           {isMe && (
             <Link
               to="/add"
-              className="bg-brand mt-5 inline-block rounded-full px-6 py-3 font-semibold text-white shadow-lg shadow-orange-500/25"
+              className="bg-brand mt-5 inline-block rounded-full px-6 py-3 font-semibold text-white shadow-lg shadow-berry-600/35"
             >
               Log a meal
             </Link>

@@ -128,7 +128,7 @@ export default function Add() {
             <button
               onClick={handlePost}
               disabled={busy}
-              className="bg-brand rounded-full px-5 py-2 text-sm font-semibold text-white shadow-md shadow-orange-500/25 transition active:scale-95 disabled:opacity-50"
+              className="bg-brand rounded-full px-5 py-2 text-sm font-semibold text-white shadow-md shadow-berry-600/35 transition active:scale-95 disabled:opacity-50"
             >
               {busy ? 'Posting…' : 'Post'}
             </button>
@@ -152,7 +152,7 @@ export default function Add() {
               className="relative flex aspect-[4/3] w-full flex-col items-center justify-center gap-3 overflow-hidden rounded-3xl bg-surface ring-1 ring-line transition active:scale-[0.99]"
             >
               <div className="bg-brand pointer-events-none absolute -bottom-20 left-1/2 h-40 w-64 -translate-x-1/2 rounded-full opacity-20 blur-3xl" />
-              <span className="bg-brand flex h-16 w-16 items-center justify-center rounded-[22px] text-white shadow-lg shadow-orange-500/30">
+              <span className="bg-brand flex h-16 w-16 items-center justify-center rounded-[22px] text-white shadow-lg shadow-berry-600/40">
                 <CameraIcon className="h-8 w-8" />
               </span>
               <span className="font-display text-xl font-semibold">
@@ -228,7 +228,7 @@ export default function Add() {
                   onClick={() => setMealType(m)}
                   className={`flex flex-col items-center gap-1.5 rounded-2xl py-3 text-xs font-semibold transition active:scale-95 ${
                     active
-                      ? 'bg-orange-500/15 text-orange-300 ring-2 ring-orange-500/70'
+                      ? 'bg-berry-500/15 text-berry-300 ring-2 ring-berry-500/70'
                       : 'bg-surface text-stone-400 ring-1 ring-line'
                   }`}
                 >
@@ -251,11 +251,11 @@ export default function Add() {
             onChange={(e) => setCaption(e.target.value)}
             placeholder="How was it? (optional)"
             rows={3}
-            className="w-full resize-none rounded-2xl border border-line bg-surface px-4 py-3 text-base outline-none transition placeholder:text-stone-600 focus:border-orange-500/70"
+            className="w-full resize-none rounded-2xl border border-line bg-surface px-4 py-3 text-base outline-none transition placeholder:text-stone-600 focus:border-berry-500/70"
           />
         </section>
 
-        {error && <p className="text-sm text-rose-400">{error}</p>}
+        {error && <p className="text-sm text-red-400">{error}</p>}
       </div>
     </div>
   )

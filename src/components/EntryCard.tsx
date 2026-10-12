@@ -104,7 +104,7 @@ export default function EntryCard(item: FeedItem) {
                         setMenuOpen(false)
                         item.onDelete?.()
                       }}
-                      className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-rose-400 active:bg-white/5"
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-red-400 active:bg-white/5"
                     >
                       <TrashIcon className="h-4 w-4" />
                       Delete
@@ -132,9 +132,9 @@ export default function EntryCard(item: FeedItem) {
             rows={2}
             autoFocus
             placeholder="Add a caption…"
-            className="w-full resize-none rounded-2xl border border-line bg-raised px-3.5 py-2.5 text-base outline-none transition focus:border-orange-500/70"
+            className="w-full resize-none rounded-2xl border border-line bg-raised px-3.5 py-2.5 text-base outline-none transition focus:border-berry-500/70"
           />
-          {error && <p className="mt-1 text-xs text-rose-400">{error}</p>}
+          {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
           <div className="mt-2 flex justify-end gap-2">
             <button
               onClick={() => setEditing(false)}

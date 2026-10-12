@@ -158,7 +158,7 @@ export default function Notes() {
                   disabled={!mine}
                   className={`max-w-[80%] whitespace-pre-wrap break-words rounded-3xl px-4 py-2.5 text-left text-[15px] leading-snug ${
                     mine
-                      ? 'bg-brand text-white shadow-md shadow-orange-500/15'
+                      ? 'bg-brand text-white shadow-md shadow-berry-600/25'
                       : 'bg-raised text-stone-100 ring-1 ring-line'
                   } ${lastInRun ? (mine ? 'rounded-br-lg' : 'rounded-bl-lg') : ''}`}
                 >
@@ -178,7 +178,7 @@ export default function Notes() {
       </div>
 
       <div className="glass sticky bottom-0 border-t border-line px-3 py-2.5">
-        {error && <p className="mb-1 px-1 text-xs text-rose-400">{error}</p>}
+        {error && <p className="mb-1 px-1 text-xs text-red-400">{error}</p>}
         {notes !== null && !friend && !error && (
           <p className="mb-1 px-1 text-xs text-stone-500">
             Add your friend’s profile to start sending notes.
@@ -198,13 +198,13 @@ export default function Notes() {
             maxLength={NOTE_MAX_LENGTH}
             enterKeyHint="send"
             placeholder={`Note to ${friendName}…`}
-            className="max-h-28 min-h-11 flex-1 resize-none rounded-3xl border border-line bg-surface px-4 py-2.5 text-base outline-none transition placeholder:text-stone-600 focus:border-orange-500/70"
+            className="max-h-28 min-h-11 flex-1 resize-none rounded-3xl border border-line bg-surface px-4 py-2.5 text-base outline-none transition placeholder:text-stone-600 focus:border-berry-500/70"
           />
           <button
             onClick={send}
             disabled={!draft.trim() || !friend || sending}
             aria-label="Send note"
-            className="bg-brand flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white shadow-md shadow-orange-500/25 transition active:scale-90 disabled:opacity-35 disabled:shadow-none"
+            className="bg-brand flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white shadow-md shadow-berry-600/35 transition active:scale-90 disabled:opacity-35 disabled:shadow-none"
           >
             <SendIcon className="h-5 w-5" />
           </button>

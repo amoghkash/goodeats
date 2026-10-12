@@ -89,7 +89,7 @@ export default function Feed() {
       </PageHeader>
 
       {error && (
-        <p className="px-4 py-6 text-center text-sm text-rose-400">{error}</p>
+        <p className="px-4 py-6 text-center text-sm text-red-400">{error}</p>
       )}
 
       {entries === null && (
@@ -111,7 +111,7 @@ export default function Feed() {
 
       {entries !== null && entries.length === 0 && !error && (
         <div className="animate-rise flex flex-col items-center px-8 py-20 text-center">
-          <span className="bg-brand flex h-20 w-20 items-center justify-center rounded-[28px] text-4xl shadow-xl shadow-orange-500/20">
+          <span className="bg-brand flex h-20 w-20 items-center justify-center rounded-[28px] text-4xl shadow-xl shadow-berry-600/30">
             🍽️
           </span>
           <p className="mt-5 font-display text-2xl font-semibold">
@@ -122,7 +122,7 @@ export default function Feed() {
           </p>
           <Link
             to="/add"
-            className="bg-brand mt-6 rounded-full px-6 py-3 font-semibold text-white shadow-lg shadow-orange-500/25 transition active:scale-[0.98]"
+            className="bg-brand mt-6 rounded-full px-6 py-3 font-semibold text-white shadow-lg shadow-berry-600/35 transition active:scale-[0.98]"
           >
             Log a meal
           </Link>

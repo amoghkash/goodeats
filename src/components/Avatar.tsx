@@ -1,9 +1,9 @@
-/** Warm gradients, picked per person so each of you keeps a consistent color. */
+/** Gradients in the brand's family, picked per person so each of you keeps a consistent color. */
 const GRADIENTS = [
-  'from-orange-400 to-rose-500',
-  'from-amber-300 to-orange-500',
-  'from-rose-400 to-fuchsia-500',
-  'from-lime-300 to-emerald-500',
+  'from-berry-400 to-berry-700',
+  'from-fuchsia-400 to-berry-700',
+  'from-pink-300 to-berry-600',
+  'from-violet-400 to-berry-600',
 ]
 
 function gradientFor(id: string) {
